@@ -19,7 +19,7 @@ public class AgentClient extends Agent {
                     System.out.println("Client Agent: Yes, I want");
                 }
                 if (first) {
-                    ACLMessage msg = new ACLMessage(ACLMessage.INFORM);
+                    ACLMessage msg = new ACLMessage(ACLMessage.QUERY_IF);
                     msg.addReceiver(new AID("RestaurantGatekeeperAgent", AID.ISLOCALNAME));
                     msg.setLanguage("English");
                     msg.setOntology("Reservation-Restaurant-Ontology");
