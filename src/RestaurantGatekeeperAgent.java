@@ -15,7 +15,7 @@ public class RestaurantGatekeeperAgent extends Agent {
             public void action() {
                 ACLMessage msg = receive();
                 if (msg != null ) {
-                    if(msg.getReplyWith()!=null){
+                    if(msg.getPerformative() == ACLMessage.INFORM){
                         System.out.println("Restaurant Gatekeeper has recieved this response: " + msg.getContent());
                         if(msg.getContent().equals("is Free")){
                             //ask client if he wants to reserve
