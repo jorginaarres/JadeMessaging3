@@ -36,10 +36,10 @@ public class RestaurantGatekeeperAgent extends Agent {
                             System.out.println( "Restaurant Gatekeeper Agent has answered the Client: " + response.getContent());
                         }
                     }
-                    else {
+                    else if(msg.getPerformative() == ACLMessage.QUERY_IF){
                         System.out.println("Restaurant Gatekeeper has recieved: " + msg.getContent());
 
-                        ACLMessage msg2 = new ACLMessage(ACLMessage.INFORM);
+                        ACLMessage msg2 = new ACLMessage(ACLMessage.QUERY_IF);
                         msg2.addReceiver(new AID("RestaurantManagerAgent", AID.ISLOCALNAME));
                         msg2.setContent(msg.getContent());
                         this.myAgent.send(msg2);
