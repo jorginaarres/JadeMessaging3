@@ -11,7 +11,8 @@ public class AgentClient extends Agent {
     private String CustomerRestaurantWantedType;
     private AID[] sellerAgents = {
             new AID("RESTAURANT1", AID.ISLOCALNAME),
-            new AID("RESTAURANT1", AID.ISLOCALNAME)};
+            new AID("RESTAURANT1", AID.ISLOCALNAME)
+    };
 
     @Override
     protected void setup() {
@@ -47,9 +48,18 @@ public class AgentClient extends Agent {
                     myAgent.addBehaviour(new RequestPerformer());
                 }
             });
+        } else{
+            System.out.println("No type of food specified");
+            doDelete();
         }
 
     }
+
+    @Override
+    protected void takeDown() {
+        System.out.println("Client-agent " + getAID().getName() + "terminating.");
+    }
+
     class RequestPerformer extends Behaviour {
         private boolean first = true;
 
