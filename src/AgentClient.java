@@ -1,8 +1,11 @@
 import jade.core.AID;
 import jade.core.Agent;
 import jade.core.behaviours.*;
+import jade.domain.DFService;
+import jade.domain.FIPAAgentManagement.DFAgentDescription;
+import jade.domain.FIPAAgentManagement.ServiceDescription;
+import jade.domain.FIPAException;
 import jade.lang.acl.ACLMessage;
-import jade.proto.ProposeResponder;
 
 public class AgentClient extends Agent {
 
@@ -33,8 +36,27 @@ public class AgentClient extends Agent {
             public boolean done() {
                 return false;
             }
-        }
-        );
-    };
+        });
+        addBehaviour(new TickerBehaviour(this, 10000) {
+            protected void onTick() {
+                // Update the list of agents
+                System.out.println("Ticker behaviour:");
+                DFAgentDescription template = new DFAgentDescription();
+                ServiceDescription sd = new ServiceDescription();
+                sd.setType("reserving");
+                template.addServices(sd);
+                try {
+                    DFAgentDescription[ ] result = DFService.search(myAgent, template);
+                    AID[] tempAgents = new AID[result.length];
+                    System.out.println("AgentsNames:");
+                    for (int i = 0; i < result.length; ++i) {
+                        tempAgents[i] = result[i].getName();
+                        System.out.println(result[i].getName());
 
-}
+                    } }
+                catch (FIPAException fe) {
+                    fe.printStackTrace(); }
+                // Perform the request myAgent.addBehaviour(new RequestPerformer()); }
+            } });
+
+}}
