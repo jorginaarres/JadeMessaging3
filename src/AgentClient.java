@@ -8,9 +8,15 @@ import jade.domain.FIPAException;
 import jade.lang.acl.ACLMessage;
 
 public class AgentClient extends Agent {
+    private String CustomerRestaurantWantedType;
+    private AID[] sellerAgents = {
+            new AID("RESTAURANT1", AID.ISLOCALNAME),
+            new AID("RESTAURANT1", AID.ISLOCALNAME)};
 
     @Override
     protected void setup() {
+
+        System.out.println("Hallo! Buyer-agent "+ getAID().getName() +" is ready.");
         addBehaviour(new SimpleBehaviour() {
             private boolean first = true;
             @Override
@@ -37,6 +43,13 @@ public class AgentClient extends Agent {
                 return false;
             }
         });
+        Object[] args = getArguments();
+        if (args != null && args.length > 0)
+        {
+            CustomerRestaurantWantedType ="Spanish";
+            System.out.println( "Trying to buy " +args[0]);
+
+        }
         addBehaviour(new TickerBehaviour(this, 10000) {
             protected void onTick() {
                 // Update the list of agents

@@ -6,21 +6,25 @@ import jade.domain.FIPAException;
 
 public class DFAgent extends Agent {
     @Override
-    protected void setup() {
+    protected void setup()
+    {
+        ServiceDescription sd  = new ServiceDescription();
+        sd.setType( "reserving" );
+        sd.setName( getLocalName() );
+        register( sd );
+    }
+    void register( ServiceDescription sd)
+    {
         DFAgentDescription dfd = new DFAgentDescription();
         dfd.setName(getAID());
-        ServiceDescription sd = new ServiceDescription();
-        sd.setType("reserving");
-        sd.setName("restaurant-reserving");
         dfd.addServices(sd);
-        try {
-            DFService.register(this, dfd);
-            DFService.register(this, dfd);
-        } catch (FIPAException fe) {
-            fe.printStackTrace();
-        }
 
+        try {
+            DFService.register(this, dfd );
+        }
+        catch (FIPAException fe) { fe.printStackTrace(); }
     }
+
 
     protected void takeDown() {
 // Deregister from the yellow pages
