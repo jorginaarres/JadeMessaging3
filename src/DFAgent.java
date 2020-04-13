@@ -7,13 +7,13 @@ import jade.domain.FIPAException;
 import java.util.Hashtable;
 
 public class DFAgent extends Agent {
-    private Hashtable<String, Integer> catalogue;
+    private Hashtable<String, String> catalogue;
     private DFGui myGui;
 
     @Override
     protected void setup()
     {
-        catalogue= new Hashtable<String, Integer>();
+        catalogue= new Hashtable<String, String>();
         myGui= new DFGui(this);
         myGui.show();
 
@@ -48,10 +48,10 @@ public class DFAgent extends Agent {
         System.out.println("DF-agent "+getAID().getName()+"terminating.");
 
     }
-    public void updateCatalogue(final String title, final int price) {
+    public void updateCatalogue(final String name, final String type) {
         addBehaviour(new OneShotBehaviour() {
             public void action() {
-                catalogue.put(title, new Integer(price));
+                catalogue.put(name, type);
             } }
         );
     }
