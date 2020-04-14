@@ -26,7 +26,7 @@ public class DFGui extends JFrame {
                 try {
                     String name = restaurantName.getText().trim();
                     String type = restaurantType.getText().trim();
-                    myAgent.updateCatalogue(name, type);
+                    myAgent.updateCatalogue( type,name);
                     restaurantName.setText("");
                     restaurantType.setText("");
                 } catch (Exception e) {

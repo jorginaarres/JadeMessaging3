@@ -20,14 +20,27 @@ public class DFAgent extends Agent {
         catalogue= new Hashtable<String, String>();
         myGui= new DFGui(this);
         myGui.show();
-/*
+
+
+        // Register the resgaurant-selling service in the directory facilitator
+        DFAgentDescription dfd = new DFAgentDescription();
+        dfd.setName(getAID());
+        ServiceDescription sd = new ServiceDescription();
+        sd.setType("restaurant-to-reserve");
+        sd.setName("JADE-restaurant-booking");
+        dfd.addServices(sd);
+        try {
+            DFService.register(this, dfd);
+        } catch (FIPAException fe) {
+            fe.printStackTrace();
+        }
+
         // Add the behaviour serving requests for
         //offer from buyer agents
         addBehaviour(new OfferRequestsServer());
         // Add the behaviour serving purchase orders from
         //buyer agents
         addBehaviour(new PurchaseOrdersServer());
-*/
 
 
         /*ServiceDescription sd  = new ServiceDescription();
@@ -61,10 +74,10 @@ public class DFAgent extends Agent {
         System.out.println("DF-agent "+getAID().getName()+"terminating.");
 
     }
-    public void updateCatalogue(final String name, final String type) {
+    public void updateCatalogue(final String type, final String name) {
         addBehaviour(new OneShotBehaviour() {
             public void action() {
-                catalogue.put(name, type);
+                catalogue.put(type, name);
                 System.out.println("You have added a restaurant in the catalogue, catalogue:");
                 System.out.println(catalogue);
 
@@ -72,13 +85,17 @@ public class DFAgent extends Agent {
         );
     }
 
-/*    private class OfferRequestsServer extends CyclicBehaviour {
+    private class OfferRequestsServer extends CyclicBehaviour {
         public void action() {
+            MessageTemplate mt = MessageTemplate.MatchPerformative(ACLMessage.CFP);
             ACLMessage msg = myAgent.receive();
             if (msg != null) {
+                System.out.println("Offer requests server message received");
+
                 // Message received. Process it
                 String name = msg.getContent();
                 ACLMessage reply = msg.createReply();
+
                 String type = catalogue.get(name);
                 if (type != null) {
                 // The requested restaurant is available to reserve.
@@ -91,15 +108,19 @@ public class DFAgent extends Agent {
                     reply.setContent( "not-available" );
                 }
                 myAgent.send(reply);
+            } else {
+                block();
             }
         }
-    } // End of inner class OfferRequestsServer*/
+    } // End of inner class OfferRequestsServer
 
-/*    private class PurchaseOrdersServer extends CyclicBehaviour {
+    private class PurchaseOrdersServer extends CyclicBehaviour {
         public void action() {
             MessageTemplate mt = MessageTemplate.MatchPerformative(ACLMessage.ACCEPT_PROPOSAL);
             ACLMessage msg = myAgent.receive(mt);
             if (msg != null) {
+                System.out.println("Purchase orders server message received");
+
                 // ACCEPT_PROPOSAL Message received. Process it
                 String name = msg.getContent();
                 ACLMessage reply = msg.createReply();
@@ -118,5 +139,5 @@ public class DFAgent extends Agent {
                 block();
             }
         }
-    }  // End of inner class OfferRequestsServer*/
+    }  // End of inner class OfferRequestsServer
 }
