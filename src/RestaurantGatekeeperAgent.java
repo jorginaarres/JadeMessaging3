@@ -37,7 +37,7 @@ public class RestaurantGatekeeperAgent extends Agent {
                         ACLMessage response = new ACLMessage(ACLMessage.INFORM);
                         response.addReceiver(new AID("AgentClient", AID.ISLOCALNAME));
                         response.setPerformative(ACLMessage.INFORM);
-                        response.setContent("Sorry, we don't have space for two this day an time");
+                        response.setContent("Sorry, we don't have space for two this day and time");
                         send(response);
                         System.out.println("Restaurant Gatekeeper Agent has answered the Client: " + response.getContent());
                     }

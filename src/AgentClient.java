@@ -8,6 +8,8 @@ import jade.domain.FIPAException;
 import jade.lang.acl.ACLMessage;
 import jade.lang.acl.MessageTemplate;
 
+import java.util.Hashtable;
+
 public class AgentClient extends Agent {
     private String CustomerRestaurantWantedType;
     private AID[] sellerAgents ;
@@ -62,7 +64,7 @@ public class AgentClient extends Agent {
     class RequestPerformer extends Behaviour {
         private boolean first = true;
         private AID bestrestaurant;
-        private String lastsametype;
+        private String firstsametype;
         // The counter of replies from seller agents
         private MessageTemplate mt;
         private int repliesCnt = 0;
@@ -90,23 +92,33 @@ public class AgentClient extends Agent {
                     System.out.println("Case 0. Done");
 
                     break;
-                case 1: // Receive all proposals/refusals from seller agents
+                case 1: // Receive all restaurants of the selected type from DF agent
                     ACLMessage reply = myAgent.receive(mt);
                     System.out.println("Case 1. Start");
 
                     if (reply != null) { // Reply received
-                        System.out.println("Case 1. This is an offer.0");
-
                         if (reply.getPerformative() == ACLMessage.INFORM) {
                             // This is an offer
                             System.out.println("Case 1. These are the spanish restaurants"+ reply.getContent());
 
-                            String type = reply.getContent();
+                            String stringhash = reply.getContent();
                             if (bestrestaurant == null ) {
-                                // This is the best offer at present
-                                lastsametype = type;
-                                bestrestaurant = reply.getSender();
-                                System.out.println("Case 1. Best offer for the moment"+ bestrestaurant);
+
+
+                                // String reply to hastable
+                                stringhash = stringhash.substring(1, stringhash.length()-1);
+                                String[] keyValuePairs= stringhash.split(",");
+                                Hashtable<String,String> map= new Hashtable<>();
+                                for(String pair : keyValuePairs){
+                                    String[] entry = pair.split("=");
+                                    map.put(entry[0].trim(), entry[1].trim());
+                                    // This is the best offer at present
+                                    firstsametype = entry[0].trim();
+                                    bestrestaurant = reply.getSender();
+
+                                }
+
+                                System.out.println("Case 1. Best offer for the moment"+ firstsametype+ bestrestaurant);
                             } }
                         repliesCnt++;
                         if (repliesCnt >= sellerAgents.length) {
@@ -119,25 +131,37 @@ public class AgentClient extends Agent {
                     // that provided the best offer
                     System.out.println("Case 2. Start");
 
+                    ACLMessage msg = new ACLMessage(ACLMessage.QUERY_IF);
+                    msg.addReceiver(new AID("RestaurantGatekeeperAgent", AID.ISLOCALNAME));
+                    msg.setLanguage("English");
+                    msg.setConversationId("restaurant-to-reserve");
+                    msg.setOntology("Reservation-Restaurant-Ontology");
+                    msg.setContent(firstsametype+"Can I book a 2 people table to have dinner on Saturday at 20:00h?");
+                    send(msg);
+/*
                     ACLMessage order = new ACLMessage(ACLMessage.ACCEPT_PROPOSAL);
                     order.addReceiver(bestrestaurant);
                     order.setContent(CustomerRestaurantWantedType);
                     order.setConversationId("restaurant-to-reserve");
                     order.setReplyWith("order" + System.currentTimeMillis());
                     myAgent.send(order);
-
-                    MessageTemplate.and(MessageTemplate.MatchConversationId("restaurant-to-reserve"),
-                            MessageTemplate.MatchInReplyTo(order.getReplyWith()));
+*/
+                    mt = MessageTemplate.and(MessageTemplate.MatchConversationId("restaurant-to-reserve"),
+                            MessageTemplate.MatchInReplyTo(msg.getReplyWith()));
                     step = 3;
                     break;
                 case 3: // Receive the purchase order reply
                     System.out.println("Case 3. Start");
 
-                    reply = myAgent.receive(mt);
+                    reply = myAgent.receive();
                     if (reply != null) { // Purchase order reply received
-                        if (reply.getPerformative() == ACLMessage.INFORM) {
+                        if (reply.getPerformative() == ACLMessage.PROPOSE) {
                             // Purchase successful. We can terminate
-                            System.out.println(lastsametype + "successfully purchased.");
+                            ACLMessage accept = reply.createReply();
+                            accept.setPerformative(ACLMessage.ACCEPT_PROPOSAL);
+                            System.out.println("Client Agent: Yes, I want");
+
+                            System.out.println(firstsametype + "successfully purchased.");
                             System.out.println("Type " + bestrestaurant);
                             myAgent.doDelete();
                         }
