@@ -21,7 +21,7 @@ public class AgentClient extends Agent {
         if (args != null && args.length > 0) {
             CustomerRestaurantWantedType = "Spanish";
             System.out.println("Trying to buy " + args[0]);
-            addBehaviour(new TickerBehaviour(this, 10000) {
+            addBehaviour(new TickerBehaviour(this, 60000) {
 
                 protected void onTick() {
                     // Update the list of agents
@@ -97,9 +97,9 @@ public class AgentClient extends Agent {
                     if (reply != null) { // Reply received
                         System.out.println("Case 1. This is an offer.0");
 
-                        if (reply.getPerformative() == ACLMessage.PROPOSE) {
+                        if (reply.getPerformative() == ACLMessage.INFORM) {
                             // This is an offer
-                            System.out.println("Case 1. This is an offer");
+                            System.out.println("Case 1. These are the spanish restaurants"+ reply.getContent());
 
                             String type = reply.getContent();
                             if (bestrestaurant == null ) {

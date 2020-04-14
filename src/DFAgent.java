@@ -9,6 +9,8 @@ import jade.lang.acl.ACLMessage;
 import jade.lang.acl.MessageTemplate;
 
 import java.util.Hashtable;
+import java.util.Iterator;
+import java.util.Set;
 
 public class DFAgent extends Agent {
     private Hashtable<String, String> catalogue;
@@ -42,24 +44,7 @@ public class DFAgent extends Agent {
         //buyer agents
         addBehaviour(new PurchaseOrdersServer());
 
-
-        /*ServiceDescription sd  = new ServiceDescription();
-        sd.setType( "reserving" );
-        sd.setName( getLocalName() );
-        register( sd );*/
     }
-    void register( ServiceDescription sd)
-    {
-        DFAgentDescription dfd = new DFAgentDescription();
-        dfd.setName(getAID());
-        dfd.addServices(sd);
-
-        try {
-            DFService.register(this, dfd );
-        }
-        catch (FIPAException fe) { fe.printStackTrace(); }
-    }
-
 
     protected void takeDown() {
         // Deregister from the yellow pages
@@ -74,10 +59,10 @@ public class DFAgent extends Agent {
         System.out.println("DF-agent "+getAID().getName()+"terminating.");
 
     }
-    public void updateCatalogue(final String type, final String name) {
+    public void updateCatalogue(final String name, final String type) {
         addBehaviour(new OneShotBehaviour() {
             public void action() {
-                catalogue.put(type, name);
+                catalogue.put(name, type);
                 System.out.println("You have added a restaurant in the catalogue, catalogue:");
                 System.out.println(catalogue);
 
@@ -93,15 +78,30 @@ public class DFAgent extends Agent {
                 System.out.println("Offer requests server message received");
 
                 // Message received. Process it
-                String name = msg.getContent();
+                String type = msg.getContent();
                 ACLMessage reply = msg.createReply();
 
-                String type = catalogue.get(name);
-                if (type != null) {
+                String name = catalogue.get(type);
+
+
+
+                if (catalogue.containsValue(type)) {
                 // The requested restaurant is available to reserve.
                 // Reply with the type
-                    reply.setPerformative(ACLMessage.PROPOSE);
-                    reply.setContent(type);
+
+                    Set<String> keys = catalogue.keySet();
+                    Iterator<String> itr= keys.iterator();
+                    String str;
+                    Hashtable<String,String> catalogeType = new Hashtable<>();
+                    while(itr.hasNext()){
+                        str = itr.next();
+                        if(catalogue.get(str).equals(type)){
+                            catalogeType.put(str,type);
+                        }
+                    }
+
+                    reply.setPerformative(ACLMessage.INFORM);
+                    reply.setContent(String.valueOf(catalogeType));
                 } else {
                     // The requested restaurant is NOT available to reserve.
                     reply.setPerformative(ACLMessage.REFUSE);
